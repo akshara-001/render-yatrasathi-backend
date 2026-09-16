@@ -46,18 +46,31 @@ public class AuthService {
 
     public ResponseEntity<?> login(LoginRequest request) {
         try {
+            System.out.println("[DEBUG][AuthService] login() called for email: " + request.getEmail());
+
             User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+
             if (user == null) {
+                System.out.println("[DEBUG][AuthService] ❌ User NOT FOUND in database for email: " + request.getEmail());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(ApiResponse.error("User not found"));
             }
 
-            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            System.out.println("[DEBUG][AuthService] ✅ User FOUND: id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail());
+            System.out.println("[DEBUG][AuthService] Stored password hash: " + user.getPassword().substring(0, Math.min(20, user.getPassword().length())) + "...");
+
+            boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+            System.out.println("[DEBUG][AuthService] Password matches: " + passwordMatches);
+
+            if (!passwordMatches) {
+                System.out.println("[DEBUG][AuthService] ❌ Password mismatch for email: " + request.getEmail());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(ApiResponse.error("Invalid credentials"));
             }
 
+            System.out.println("[DEBUG][AuthService] Generating JWT token for userId: " + user.getId());
             String token = jwtUtil.generateToken(user.getId());
+            System.out.println("[DEBUG][AuthService] ✅ JWT token generated (length=" + token.length() + ")");
 
             LoginResponse response = LoginResponse.builder()
                     .success(true)
@@ -69,8 +82,11 @@ public class AuthService {
                             .build())
                     .build();
 
+            System.out.println("[DEBUG][AuthService] ✅ Login SUCCESS for: " + user.getEmail());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("[DEBUG][AuthService] ❌ EXCEPTION during login: " + e.getClass().getName() + " - " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error logging in", e.getMessage()));
         }

@@ -24,6 +24,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request);
+        System.out.println("========================================");
+        System.out.println("[DEBUG] POST /api/auth/login HIT");
+        System.out.println("[DEBUG] Received email: " + request.getEmail());
+        System.out.println("[DEBUG] Password length: " + (request.getPassword() != null ? request.getPassword().length() : "NULL"));
+        System.out.println("========================================");
+
+        ResponseEntity<?> response = authService.login(request);
+
+        System.out.println("[DEBUG] Login response status: " + response.getStatusCode());
+        System.out.println("[DEBUG] Login response body: " + response.getBody());
+
+        return response;
     }
 }

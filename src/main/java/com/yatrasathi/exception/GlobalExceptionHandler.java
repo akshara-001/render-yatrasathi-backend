@@ -16,6 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+        System.out.println("[DEBUG][ExceptionHandler] ResourceNotFoundException: " + ex.getMessage());
         Map<String, Object> response = new HashMap<>();
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -24,6 +25,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        System.out.println("[DEBUG][ExceptionHandler] ValidationException: " + errorMessage);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(errorMessage));
     }
@@ -31,6 +33,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleMissingRequestParameter(
             MissingServletRequestParameterException ex) {
 
+        System.out.println("[DEBUG][ExceptionHandler] MissingParam: " + ex.getParameterName());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(
                         "Required parameter '" +
@@ -42,6 +45,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleMissingRequestPart(
             MissingServletRequestPartException ex) {
 
+        System.out.println("[DEBUG][ExceptionHandler] MissingPart: " + ex.getRequestPartName());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(
                         "Required part '" +
@@ -53,12 +57,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        System.out.println("[DEBUG][ExceptionHandler] IllegalArgumentException: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleGenericException(Exception ex) {
+        System.out.println("[DEBUG][ExceptionHandler] ❌ UNHANDLED EXCEPTION: " + ex.getClass().getName() + " - " + ex.getMessage());
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("An internal error occurred", ex.getMessage()));
     }
