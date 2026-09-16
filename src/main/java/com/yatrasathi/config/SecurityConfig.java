@@ -19,61 +19,64 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-                .csrf(AbstractHttpConfigurer::disable)
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
 
-                .cors(cors -> {})
+                                .cors(cors -> cors.configurationSource(request -> {
+                                        var config = new org.springframework.web.cors.CorsConfiguration();
+                                        config.addAllowedOriginPattern("*");
+                                        config.addAllowedMethod("*");
+                                        config.addAllowedHeader("*");
+                                        return config;
+                                }))
 
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .authorizeHttpRequests(auth -> auth
+                                .authorizeHttpRequests(auth -> auth
 
-                        // AUTH APIs - PUBLIC
-                        .requestMatchers("/api/auth/**").permitAll()
+                                                // AUTH APIs - PUBLIC
+                                                .requestMatchers("/api/auth/**").permitAll()
 
-                        // GALLERY GET - PUBLIC
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                "/api/gallery/**"
-                        ).permitAll()
+                                                // GALLERY GET - PUBLIC
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/gallery/**")
+                                                .permitAll()
 
-                        // GALLERY UPLOAD - JWT REQUIRED
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/api/gallery/upload"
-                        ).authenticated()
+                                                // GALLERY UPLOAD - JWT REQUIRED
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/api/gallery/upload")
+                                                .authenticated()
 
-                        // GALLERY LIKE/UNLIKE - JWT REQUIRED
-                        .requestMatchers(
-                                HttpMethod.PUT,
-                                "/api/gallery/*/like"
-                        ).authenticated()
+                                                // GALLERY LIKE/UNLIKE - JWT REQUIRED
+                                                .requestMatchers(
+                                                                HttpMethod.PUT,
+                                                                "/api/gallery/*/like")
+                                                .authenticated()
 
-                        // TRAVEL APIs - PUBLIC FOR NOW
-                        .requestMatchers("/api/travel/**").permitAll()
+                                                // TRAVEL APIs - PUBLIC FOR NOW
+                                                .requestMatchers("/api/travel/**").permitAll()
 
-                        // Everything else - PUBLIC FOR NOW
-                        .anyRequest().permitAll()
-                )
+                                                // Everything else - PUBLIC FOR NOW
+                                                .anyRequest().permitAll())
 
-                // Put our JWT filter before Spring's username/password filter
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                                // Put our JWT filter before Spring's username/password filter
+                                .addFilterBefore(
+                                                jwtAuthenticationFilter,
+                                                UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 }
