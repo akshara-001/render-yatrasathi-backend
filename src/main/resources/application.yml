@@ -7,7 +7,7 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGO_URI:${MONGODB_URI:mongodb://localhost:27017/yatrasathi}}
+      uri: ${MONGODB_URI}
       database: yatrasathi
 
   mail:

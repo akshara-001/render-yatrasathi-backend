@@ -35,7 +35,6 @@ public class YatraSathiApplication {
             String mongoUri = System.getenv("MONGODB_URI");
             String mongoUri2 = System.getenv("MONGO_URI");
             System.out.println("[DEBUG] ENV MONGODB_URI is " + (mongoUri != null ? "SET (length=" + mongoUri.length() + ")" : "NOT SET ❌"));
-            System.out.println("[DEBUG] ENV MONGO_URI is " + (mongoUri2 != null ? "SET (length=" + mongoUri2.length() + ")" : "NOT SET ❌"));
             System.out.println("[DEBUG] ENV JWT_SECRET is " + (System.getenv("JWT_SECRET") != null ? "SET ✅" : "NOT SET ❌"));
             System.out.println("[DEBUG] ENV MAIL_USERNAME is " + (System.getenv("MAIL_USERNAME") != null ? "SET ✅" : "NOT SET ❌"));
             System.out.println("[DEBUG] ENV PORT is " + (System.getenv("PORT") != null ? System.getenv("PORT") : "NOT SET (using default)"));
